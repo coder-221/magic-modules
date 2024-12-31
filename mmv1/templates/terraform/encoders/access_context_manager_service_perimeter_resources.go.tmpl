@@ -12,6 +12,27 @@
 	limitations under the License.
 */ -}}
 
+// First get the resources that should be removed (if the TF resource was deleted)
+old, new := d.GetChange("resources")
+old_resources := old.(*schema.Set).List()
+new_resources := new.(*schema.Set).List()
+
+log.Printf("***123 [DEBUG] encoder diff old_resources: %v", old_resources)
+log.Printf("***123 [DEBUG] encoder diff new_resources: %v", new_resources)
+
+resources_to_remove := make([]interface{}, 0)
+
+for i := 0; i < len(old_resources); i++ {
+	if !slices.Contains(new_resources, old_resources[i]) {
+		log.Printf("***123 [DEBUG] removing resource: %s", old_resources[i])
+		resources_to_remove = append(resources_to_remove, old_resources[i])
+	}
+}
+
+log.Printf("***123 [DEBUG] encoder diff resources_to_remove: %v", resources_to_remove)
+// log.Printf("***123 [DEBUG] encoder diff resources_to_remove: %v", resources_to_remove)
+
+// Next, get the current perimeter to apply the diff against
 
 log.Printf("***123 [DEBUG] encoder fetching current perimter")
 
@@ -57,17 +78,35 @@ resources_to_add := obj["resources"].([]interface {})
 log.Printf("***123 [DEBUG] encoder existing resources: %v", existing_resources)
 log.Printf("***123 [DEBUG] encoder resources to add: %v", resources_to_add)
 
-merged_resource_list := existing_resources
+
+
+// also preserve the order of the resources
+merged_resource_list := make([]interface{}, 0)
+
+// loop through existing resources
+	// if the resource is in the resources_to_remove list, skip it
+	// else
+		// add to merged_resource_list
+// loop through resources_to_add
+	// if already in merged_resource_list skip, otherwise append
+		
+
+for i := 0; i < len(existing_resources); i++ {
+	if !slices.Contains(resources_to_remove, existing_resources[i]) {
+		log.Printf("***123 [DEBUG] case 1 - dropping : %s", existing_resources[i])
+		merged_resource_list = append(merged_resource_list, existing_resources[i])
+	}
+}
+	
 
 for i := 0; i < len(resources_to_add); i++ {
-	if !slices.Contains(existing_resources, resources_to_add[i]) {
-		log.Printf("***123 [DEBUG] adding resource: %s", resources_to_add[i])
+	if !slices.Contains(merged_resource_list, resources_to_add[i]) {
+		log.Printf("***123 [DEBUG] case 2 - adding: %s", resources_to_add[i])
 		merged_resource_list = append(merged_resource_list, resources_to_add[i])
 	}
 }
 
-
-// merged_resource_list := append(existing_resources, resources_to_add...)
+log.Printf("***123 [DEBUG] encoder merged_resource_list: %v", merged_resource_list)
 
 obj["status"] = make(map[string]interface{})
 obj["status"].(map[string]interface{})["resources"] = merged_resource_list
