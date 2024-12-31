@@ -42,8 +42,8 @@ create_url: '{{perimeter_name}}'
 create_verb: 'PATCH'
 update_mask: false
 delete_verb: 'PATCH'
-# update_verb: 'PATCH'
-immutable: true
+update_verb: 'PATCH'
+# immutable: true
 mutex: '{{perimeter_name}}'
 import_format:
   - '{{perimeter_name}}'
@@ -59,24 +59,15 @@ async:
     base_url: '{{op_id}}'
   result:
     resource_inside_response: true
-# TODO confirm this. Not able to find documentation on the 'identity' field
 identity:
   - resources
-# nested_query:
-#   keys:
-#     - status
-#     - resources
-#   is_list_of_ids: true
-#   modify_by_patch: true
 custom_code:
   custom_import: 'templates/terraform/custom_import/access_context_manager_service_perimeter_resource.go.tmpl'
-  # decoder: 'templates/terraform/decoders/access_context_manager_service_perimeter_resources.go.tmpl'
   encoder: 'templates/terraform/encoders/access_context_manager_service_perimeter_resources.go.tmpl'
   update_encoder: 'templates/terraform/encoders/access_context_manager_service_perimeter_resources.go.tmpl'
-  # update_encoder: 'templates/terraform/update_encoder/access_context_manager_service_perimeter_resources.go.tmpl'
   pre_create: 'templates/terraform/pre_create/access_context_manager_service_perimeter_resources.go.tmpl'
-  # pre_update: 'templates/terraform/pre_update/access_context_manager_service_perimeter_resources.go.tmpl'
-  # pre_delete: 'templates/terraform/pre_create/access_context_manager_service_perimeter_resources.go.tmpl'
+  pre_update: 'templates/terraform/pre_create/access_context_manager_service_perimeter_resources.go.tmpl'
+# pre_delete: 'templates/terraform/pre_create/access_context_manager_service_perimeter_resources.go.tmpl'
 exclude_tgc: true
 # Skipping the sweeper due to the non-standard base_url and because this is fine-grained under ServicePerimeter
 exclude_sweeper: true
@@ -112,16 +103,3 @@ properties:
     item_type:
       type: String
     required: true
-  # - name: 'foo'
-  #   type: String
-  #   description: |
-  #     A GCP resource that is inside of the service perimeter.
-  #     Currently only projects are allowed.
-  #     Format: projects/{project_number}
-  #   output: true
-  # - name: 'existing_resources'
-  #   type: Array
-  #   item_type:
-  #     type: String
-    # output: true
-    # ignore_read: true

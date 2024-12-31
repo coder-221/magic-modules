@@ -57,13 +57,22 @@ resources_to_add := obj["resources"].([]interface {})
 log.Printf("***123 [DEBUG] encoder existing resources: %v", existing_resources)
 log.Printf("***123 [DEBUG] encoder resources to add: %v", resources_to_add)
 
+merged_resource_list := existing_resources
 
-merged_resource_list := append(existing_resources, resources_to_add...)
+for i := 0; i < len(resources_to_add); i++ {
+	if !slices.Contains(existing_resources, resources_to_add[i]) {
+		log.Printf("***123 [DEBUG] adding resource: %s", resources_to_add[i])
+		merged_resource_list = append(merged_resource_list, resources_to_add[i])
+	}
+}
+
+
+// merged_resource_list := append(existing_resources, resources_to_add...)
 
 obj["status"] = make(map[string]interface{})
 obj["status"].(map[string]interface{})["resources"] = merged_resource_list
 
-
+obj["etag"] = res["etag"]
 
 delete(obj, "resources")
 return obj, nil
