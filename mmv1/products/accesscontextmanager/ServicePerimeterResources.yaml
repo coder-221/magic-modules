@@ -15,11 +15,10 @@
 name: 'ServicePerimeterResources'
 api_resource_type_kind: ServicePerimeter
 description: |
-  Allows configuring a single GCP resource that should be inside the `status` block of a service perimeter.
-  This resource is intended to be used in cases where it is not possible to compile a full list
-  of projects to include in a `google_access_context_manager_service_perimeter` resource,
+  Allows configuring GCP resources that should be inside the `status` block of a service perimeter.
+  The resources are intended to be used in cases where it is not possible to compile a full list
+  of resources to include in a `google_access_context_manager_service_perimeter` resource,
   to enable them to be added separately.
-  If your perimeter is in dry-run mode use `google_access_context_manager_service_perimeter_dry_run_resource` instead.
 
   ~> **Note:** If this resource is used alongside a `google_access_context_manager_service_perimeter` resource,
   the service perimeter resource must have a `lifecycle` block with `ignore_changes = [status[0].resources]` so
@@ -35,7 +34,7 @@ docs:
     in the provider configuration. Otherwise the ACM API will return a 403 error.
     Your account must have the `serviceusage.services.use` permission on the
     `billing_project` you defined.
-id_format: '{{perimeter_name}}/{{resource}}'
+id_format: '{{perimeter_name}}'
 base_url: ''
 self_link: '{{perimeter_name}}'
 create_url: '{{perimeter_name}}'
@@ -67,11 +66,14 @@ custom_code:
   decoder: 'templates/terraform/decoders/access_context_manager_service_perimeter_resources.go.tmpl'
   update_encoder: 'templates/terraform/encoders/access_context_manager_service_perimeter_resources.go.tmpl'
   pre_create: 'templates/terraform/pre_create/access_context_manager_service_perimeter_resources.go.tmpl'
-  pre_update: 'templates/terraform/pre_create/access_context_manager_service_perimeter_resources.go.tmpl'
-# pre_delete: 'templates/terraform/pre_create/access_context_manager_service_perimeter_resources.go.tmpl'
+  pre_update: 'templates/terraform/pre_update/access_context_manager_service_perimeter_resources.go.tmpl'
+  pre_delete: 'templates/terraform/pre_delete/access_context_manager_service_perimeter_resources.go.tmpl'
 exclude_tgc: true
 # Skipping the sweeper due to the non-standard base_url and because this is fine-grained under ServicePerimeter
 exclude_sweeper: true
+error_retry_predicates:
+
+  - 'transport_tpg.AcmInvalidEtag'
 examples:
   - name: 'access_context_manager_service_perimeter_resource_basic'
     primary_resource_id: 'service-perimeter-resource'
@@ -82,7 +84,7 @@ parameters:
   - name: 'perimeterName'
     type: ResourceRef
     description: |
-      The name of the Service Perimeter to add this resource to.
+      The name of the Service Perimeter to add the resources to.
     url_param_only: true
     required: true
     immutable: true
@@ -92,14 +94,9 @@ properties:
   - name: 'resources'
     type: Array
     description: |
-      A list of resources, currently only projects in the form
-      `projects/<projectnumber>`, protected by this `ServicePerimeter`
+      A list of resources protected by this `ServicePerimeter`
       that are allowed to be accessed by sources defined in the
-      corresponding `IngressFrom`. A request matches if it contains
-      a resource in this list. If `*` is specified for resources,
-      then this `IngressTo` rule will authorize access to all
-      resources inside the perimeter, provided that the request
-      also matches the `operations` field.
+      `IngressFrom` config.
     is_set: true
     item_type:
       type: String

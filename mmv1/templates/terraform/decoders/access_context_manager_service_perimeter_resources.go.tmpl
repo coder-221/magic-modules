@@ -10,6 +10,8 @@ log.Printf("***123 [DEBUG] decoder diff new_resources: %v", new_resources)
 perimeter_status := res["status"].(map[string]interface{})
 all_resources_in_perimeter := perimeter_status["resources"].([]interface{})
 
+log.Printf("***123 [DEBUG] decoder Get: %v", d.Get("resources"))
+
 // remove any resources in the API response that are not in the resources TF config list
 resources_to_keep := make([]interface{}, 0)
 
@@ -30,5 +32,9 @@ for i := 0; i < len(all_resources_in_perimeter); i++ {
 
 res["resources"] = resources_to_keep
 
-log.Printf("***123 [DEBUG] decoder tf_config_resources: %v, resources_to_keep: %v, all_resources_in_perimeter: %v", tf_config_resources, resources_to_keep, all_resources_in_perimeter)
+// TMP try this
+// res["resources"] = all_resources_in_perimeter
+
+// log.Printf("***123 [DEBUG] decoder tf_config_resources: %v, resources_to_keep: %v, all_resources_in_perimeter: %v", tf_config_resources, resources_to_keep, all_resources_in_perimeter)
+// log.Printf("***123 [DEBUG] decoder resources_to_keep: %v, all_resources_in_perimeter: %v", tf_config_resources, resources_to_keep, all_resources_in_perimeter)
 return res, nil

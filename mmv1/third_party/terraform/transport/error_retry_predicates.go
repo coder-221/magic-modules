@@ -420,6 +420,16 @@ func IamServiceAccountNotFound(err error) (bool, string) {
 	return false, ""
 }
 
+func AcmInvalidEtag(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(gerr.Body, "does not match the eTag") {
+			return true, "failed due to invalid etag sent in the update request"
+		}
+	}
+
+	return false, ""
+}
+
 // Concurrent Apigee operations can fail with a 400 error
 func IsApigeeRetryableError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {

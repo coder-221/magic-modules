@@ -72,7 +72,16 @@ if err != nil {
 log.Printf("***123 [DEBUG] encoder current perimter: %v", res)
 log.Printf("***123 [DEBUG] encoder current perimter resources: %s", res["status"].(map[string]interface{})["resources"])
 
-existing_resources := res["status"].(map[string]interface{})["resources"].([]interface {})
+
+
+// existing_resources := res["status"].(map[string]interface{})["resources"].([]interface {})
+
+var existing_resources = make([]interface{}, 0)
+
+if res["status"] != nil && res["status"].(map[string]interface{})["resources"] != nil {
+	existing_resources = res["status"].(map[string]interface{})["resources"].([]interface {})
+}
+
 resources_to_add := obj["resources"].([]interface {})
 
 log.Printf("***123 [DEBUG] encoder existing resources: %v", existing_resources)
