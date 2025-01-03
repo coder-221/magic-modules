@@ -1,0 +1,79 @@
+// Returns etag (string) and resources ([]interface{})
+func {{$.ResourceName}}BuildResourcesUpdateRequest(d *schema.ResourceData, resources_to_remove []interface {}, resources_to_add []interface {}, meta interface{}) (etag string, resources []interface{}, err error) {
+
+    log.Printf("[DEBUG] BuildResourcesUpdateRequest resources_to_add: %v", resources_to_add)
+    log.Printf("[DEBUG] BuildResourcesUpdateRequest resources_to_remove: %v", resources_to_remove)
+
+    // Next, get the current perimeter to apply the diff against
+    log.Printf("[DEBUG] BuildResourcesUpdateRequest Fetching current service perimter")
+
+    config := meta.(*transport_tpg.Config)
+    userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+    if err != nil {
+        return "", nil, err
+    }
+
+    url, err := tpgresource.ReplaceVars(d, config, "{{"{{"}}AccessContextManagerBasePath{{"}}"}}{{"{{"}}perimeter_name{{"}}"}}")
+    if err != nil {
+        return "", nil, err
+    }
+
+
+    billingProject := ""
+
+    // err == nil indicates that the billing_project value was found
+    if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+        billingProject = bp
+    }
+
+    headers := make(http.Header)
+
+    res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+        Config:    config,
+        Method:    "GET",
+        Project:   billingProject,
+        RawURL:    url,
+        UserAgent: userAgent,
+        Headers:   headers,
+    })
+    if err != nil {
+        return "", nil, err
+    }
+
+    var existing_resources = make([]interface{}, 0)
+
+    if res["status"] != nil && res["status"].(map[string]interface{})["resources"] != nil {
+        existing_resources = res["status"].(map[string]interface{})["resources"].([]interface {})
+    }
+
+    log.Printf("***123 [DEBUG] BuildResourcesUpdateRequest existing resources: %v", existing_resources)
+
+    // also preserve the order of the resources
+    merged_resource_list := make([]interface{}, 0)
+
+    // loop through existing resources
+        // if the resource is in the resources_to_remove list, skip it
+        // else
+            // add to merged_resource_list
+    // loop through resources_to_add
+        // if already in merged_resource_list skip, otherwise append
+            
+
+    for i := 0; i < len(existing_resources); i++ {
+        if !slices.Contains(resources_to_remove, existing_resources[i]) {
+            merged_resource_list = append(merged_resource_list, existing_resources[i])
+        }
+    }
+
+    if (resources_to_add != nil) {
+        for i := 0; i < len(resources_to_add); i++ {
+            if !slices.Contains(merged_resource_list, resources_to_add[i]) {
+                merged_resource_list = append(merged_resource_list, resources_to_add[i])
+            }
+        }
+    }
+
+    log.Printf("[DEBUG] BuildResourcesUpdateRequest merged_resource_list: %v", merged_resource_list)
+
+    return res["etag"].(string), merged_resource_list, nil
+}

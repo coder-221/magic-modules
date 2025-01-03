@@ -61,10 +61,9 @@ async:
 identity:
   - resources
 custom_code:
+  constants: 'templates/terraform/constants/access_context_manager_service_perimeter_resources.go.tmpl'
   custom_import: 'templates/terraform/custom_import/access_context_manager_service_perimeter_resource.go.tmpl'
-  encoder: 'templates/terraform/encoders/access_context_manager_service_perimeter_resources.go.tmpl'
   decoder: 'templates/terraform/decoders/access_context_manager_service_perimeter_resources.go.tmpl'
-  update_encoder: 'templates/terraform/encoders/access_context_manager_service_perimeter_resources.go.tmpl'
   pre_create: 'templates/terraform/pre_create/access_context_manager_service_perimeter_resources.go.tmpl'
   pre_update: 'templates/terraform/pre_update/access_context_manager_service_perimeter_resources.go.tmpl'
   pre_delete: 'templates/terraform/pre_delete/access_context_manager_service_perimeter_resources.go.tmpl'

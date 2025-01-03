@@ -6,3 +6,28 @@ url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": str
 if err != nil {
 	return err
 }
+
+// First get the resources that should be removed (if the TF resource was deleted)
+old, new := d.GetChange("resources")
+old_resources := old.(*schema.Set).List()
+new_resources := new.(*schema.Set).List()
+
+resources_to_remove := make([]interface{}, 0)
+
+for i := 0; i < len(old_resources); i++ {
+	if !slices.Contains(new_resources, old_resources[i]) {
+		resources_to_remove = append(resources_to_remove, old_resources[i])
+	}
+}
+
+etag, resources, err := AccessContextManagerServicePerimeterResourcesBuildResourcesUpdateRequest(d, resources_to_remove, obj["resources"].([]interface{}), meta)
+
+if err != nil {
+	return err
+}
+
+obj["status"] = make(map[string]interface{})
+obj["status"].(map[string]interface{})["resources"] = resources
+obj["etag"] = etag
+
+delete(obj, "resources")
