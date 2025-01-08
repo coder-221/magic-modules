@@ -1,0 +1,26 @@
+// start post_create_failure
+
+// if the error is an etag mismatch, then retry the entire operation (both
+// get+patch calls)
+
+if IsAcmInvalidEtagError(err) {
+	attemptTryResourceCreate = true
+	// fetch a new resource list and etag
+	obj, err = resourceAccessContextManagerServicePerimeterResourcePatchCreateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	continue
+}
+// if gerr, ok := err.(*googleapi.Error); ok {
+// 	if gerr.Code == 400 && strings.Contains(gerr.Body, "does not match the eTag") {
+
+// 	} else {
+// 		attemptTryResourceCreate = false
+// 	}
+// } else {
+// 	attemptTryResourceCreate = false
+// }
+// end post_create_failure
+

@@ -1,0 +1,9 @@
+func IsAcmInvalidEtagError(err error) bool {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(gerr.Body, "does not match the eTag") {
+			return true
+		}
+	}
+
+	return false
+}

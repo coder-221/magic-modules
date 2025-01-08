@@ -291,7 +291,7 @@ func resource{{ $.ResourceName -}}Create(d *schema.ResourceData, meta interface{
     })
     if err != nil {
 {{- if and ($.CustomCode.PostCreateFailure) (not $.GetAsync) -}}
-        {{ $.CustomTemplate $.CustomCode.PostCreateFailure false -}}
+    {{ $.CustomTemplate $.CustomCode.PostCreateFailure false -}}
 {{- end}}
         return fmt.Errorf("Error creating {{ $.Name -}}: %s", err)
     }
